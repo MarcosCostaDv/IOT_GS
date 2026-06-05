@@ -189,9 +189,10 @@ Exemplo de resposta de `/api/temperatura`:
 ## Autores
 
 | Nome | RM |
-|---|---|
-| _[Preencher]_ | _[RM]_ |
-| _[Preencher]_ | _[RM]_ |
-
+Andre Queiroz - Rm554503
+Marcos Vinicius Costa - Rm555490
+Paulo Poças - Rm556080
+Rafael Bocchi - Rm557603
+Rafael  Oliveira- Rm554736
 **GitHub:** [link]  
 **Vídeo YouTube:** [link]
