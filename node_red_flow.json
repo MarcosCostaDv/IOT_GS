@@ -1,0 +1,273 @@
+[
+  {
+    "id": "tab_capsule",
+    "type": "tab",
+    "label": "Space Capsule Dashboard",
+    "disabled": false,
+    "info": "Dashboard de monitoramento da cápsula espacial"
+  },
+
+  {
+    "id": "inject_poll",
+    "type": "inject",
+    "z": "tab_capsule",
+    "name": "Poll 1s",
+    "props": [{ "p": "payload" }],
+    "repeat": "1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 120,
+    "y": 100,
+    "wires": [["http_temp"]]
+  },
+
+  {
+    "id": "http_temp",
+    "type": "http request",
+    "z": "tab_capsule",
+    "name": "GET /api/temperatura",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "http://localhost:5000/api/temperatura",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "authType": "",
+    "x": 320,
+    "y": 100,
+    "wires": [["parse_temp"]]
+  },
+
+  {
+    "id": "parse_temp",
+    "type": "function",
+    "z": "tab_capsule",
+    "name": "Extrair payload",
+    "func": "var d = msg.payload;\nif (!d || d.temperatura === undefined) return null;\nmsg.temperatura = d.temperatura;\nmsg.status      = d.status;\nmsg.timestamp   = d.timestamp_iso;\nmsg.payload     = d.temperatura;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 530,
+    "y": 100,
+    "wires": [["gauge_temp", "chart_temp", "text_status", "led_status", "debug_out"]]
+  },
+
+  {
+    "id": "gauge_temp",
+    "type": "ui_gauge",
+    "z": "tab_capsule",
+    "name": "Temperatura",
+    "group": "group_main",
+    "order": 1,
+    "width": "6",
+    "height": "5",
+    "gtype": "gage",
+    "title": "Temperatura Interna (°C)",
+    "label": "°C",
+    "format": "{{value}}",
+    "min": "15",
+    "max": "35",
+    "colors": ["#0066ff", "#00cc44", "#ff3300"],
+    "seg1": "20",
+    "seg2": "27",
+    "x": 780,
+    "y": 60,
+    "wires": []
+  },
+
+  {
+    "id": "chart_temp",
+    "type": "ui_chart",
+    "z": "tab_capsule",
+    "name": "Gráfico Temperatura",
+    "group": "group_main",
+    "order": 2,
+    "width": "12",
+    "height": "5",
+    "label": "Histórico de Temperatura",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "Aguardando dados...",
+    "dot": false,
+    "ymin": "15",
+    "ymax": "35",
+    "removeOlder": "5",
+    "removeOlderPoints": "300",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "colors": ["#00cc44"],
+    "x": 780,
+    "y": 120,
+    "wires": []
+  },
+
+  {
+    "id": "text_status",
+    "type": "ui_text",
+    "z": "tab_capsule",
+    "group": "group_status",
+    "order": 1,
+    "width": "6",
+    "height": "1",
+    "name": "Status",
+    "label": "Status do Sensor",
+    "format": "{{msg.status}}",
+    "layout": "row-left",
+    "x": 780,
+    "y": 180,
+    "wires": []
+  },
+
+  {
+    "id": "led_status",
+    "type": "function",
+    "z": "tab_capsule",
+    "name": "LED Status",
+    "func": "var s = msg.status;\nvar cor = '#00cc44';\nif (s === 'ALERTA_ALTO' || s === 'ALERTA_BAIXO') cor = '#ff0000';\nelse if (s === 'AVISO') cor = '#ffcc00';\nelse if (s === 'FALHA') cor = '#ff6600';\nmsg.payload = cor;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 780,
+    "y": 240,
+    "wires": [["ui_led"]]
+  },
+
+  {
+    "id": "ui_led",
+    "type": "ui_led",
+    "z": "tab_capsule",
+    "name": "LED Capsule",
+    "group": "group_status",
+    "order": 2,
+    "width": "2",
+    "height": "1",
+    "label": "ESTADO",
+    "labelPlacement": "left",
+    "labelAlignment": "left",
+    "colorForValue": [
+      { "color": "#ff0000", "value": "#ff0000", "valueType": "str" },
+      { "color": "#ffcc00", "value": "#ffcc00", "valueType": "str" },
+      { "color": "#00cc44", "value": "#00cc44", "valueType": "str" }
+    ],
+    "allowColorForValueInMessage": true,
+    "x": 980,
+    "y": 240,
+    "wires": []
+  },
+
+  {
+    "id": "debug_out",
+    "type": "debug",
+    "z": "tab_capsule",
+    "name": "Debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 780,
+    "y": 300,
+    "wires": []
+  },
+
+  {
+    "id": "inject_hist",
+    "type": "inject",
+    "z": "tab_capsule",
+    "name": "Poll Histórico 10s",
+    "repeat": "10",
+    "crontab": "",
+    "once": true,
+    "onceDelay": 2,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 140,
+    "y": 380,
+    "wires": [["http_hist"]]
+  },
+
+  {
+    "id": "http_hist",
+    "type": "http request",
+    "z": "tab_capsule",
+    "name": "GET /api/status",
+    "method": "GET",
+    "ret": "obj",
+    "url": "http://localhost:5000/api/status",
+    "x": 340,
+    "y": 380,
+    "wires": [["text_leituras"]]
+  },
+
+  {
+    "id": "text_leituras",
+    "type": "function",
+    "z": "tab_capsule",
+    "name": "Montar texto resumo",
+    "func": "var d = msg.payload;\nmsg.payload = 'Leituras: ' + d.total_leituras + '  |  Sistema: ' + d.sistema;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 560,
+    "y": 380,
+    "wires": [["ui_text_resumo"]]
+  },
+
+  {
+    "id": "ui_text_resumo",
+    "type": "ui_text",
+    "z": "tab_capsule",
+    "group": "group_status",
+    "order": 3,
+    "width": "12",
+    "height": "1",
+    "name": "Resumo",
+    "label": "Resumo",
+    "format": "{{msg.payload}}",
+    "layout": "row-left",
+    "x": 780,
+    "y": 380,
+    "wires": []
+  },
+
+  {
+    "id": "group_main",
+    "type": "ui_group",
+    "name": "Monitoramento de Temperatura",
+    "tab": "ui_tab_capsule",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+
+  {
+    "id": "group_status",
+    "type": "ui_group",
+    "name": "Status do Sistema",
+    "tab": "ui_tab_capsule",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+
+  {
+    "id": "ui_tab_capsule",
+    "type": "ui_tab",
+    "name": "Capsule Dashboard",
+    "icon": "satellite",
+    "order": 1,
+    "disabled": false,
+    "hidden": false
+  }
+]
