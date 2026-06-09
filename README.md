@@ -202,7 +202,7 @@ Os entregáveis completos do projeto estão disponíveis na pasta `/docs`:
 
 ## 🔗 Links
 
-- 🎥 **Vídeo de Demonstração:** `[inserir link YouTube]`
+- 🎥 **Vídeo de Demonstração:** https://youtu.be/JbSH18CQHV8
 - 📦 **Repositório:** https://github.com/MarcosCostaDv/IOT_GS
 
 ---
